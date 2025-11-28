@@ -1,0 +1,27 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# 运行时依赖安装前，准备系统依赖（Prisma 需要 OpenSSL）
+RUN apk add --no-cache openssl
+
+# 仅运行时依赖，容器内安装，避免本地加密/编码影响构建
+COPY apps/server/package.json ./package.json
+# 跳过 postinstall（prisma generate），避免在复制 prisma 目录前执行
+RUN npm i --omit=dev --ignore-scripts
+
+# 复制运行所需文件
+COPY apps/server/docker-bootstrap.sh ./docker-bootstrap.sh
+COPY apps/server/prisma ./prisma
+COPY apps/server/dist ./dist
+
+# 复制 prisma 后再显式生成客户端
+RUN npx prisma generate
+
+ENV NODE_ENV=production
+ENV HOST="0.0.0.0"
+EXPOSE 4000
+
+# 生成 Linux 平台 Prisma 客户端并启动
+RUN chmod +x ./docker-bootstrap.sh
+CMD ["./docker-bootstrap.sh"]
