@@ -15,7 +15,7 @@ export class LoginQrService {
   async handleGenerateLoginQrCron() {
     this.logger.debug('Called handleGenerateLoginQrCron');
     try {
-      await this.trpcService.createLoginUrl();
+      await this.trpcService.sendFeishuQrLink();
     } catch (err) {
       this.logger.error('handleGenerateLoginQrCron error', err);
     }

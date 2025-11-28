@@ -66,7 +66,9 @@ const AccountPage = () => {
           });
           refetch();
         } else if (data.message) {
-          toast.error(`登录失败: ${data.message}`);
+          if (data.message === "expired") {
+            toast.error("登录失败: 二维码已过期");
+          }
         }
       },
     },
@@ -199,7 +201,7 @@ const AccountPage = () => {
                       </div>
                       <div className="mt-4">
                         微信扫码登录{" "}
-                        {!loginResult?.message && count > 0 && (
+                        {loginResult?.message !== "expired" && count > 0 && (
                           <span className="text-red-400">({count}s)</span>
                         )}
                       </div>

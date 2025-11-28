@@ -352,25 +352,8 @@ export class TrpcService {
         scanUrl: string;
       }>(`/api/v2/login/platform`)
       .then((res) => res.data);
-
-    try {
-      if (result?.uuid && result?.scanUrl) {
-        this.loginScanUrlMap.set(result.uuid, result.scanUrl);
-        const { originUrl } =
-          this.configService.get<ConfigurationType['feed']>('feed')!;
-        const { feishuWebhookUrl } =
-          this.configService.get<ConfigurationType['notify']>('notify')!;
-        if (feishuWebhookUrl && originUrl) {
-          const link = `${originUrl}/qr/${result.uuid}`;
-          const text = `请用微信扫码登录\n二维码链接：${link}\n有效期60秒`;
-          await Axios.post(feishuWebhookUrl, {
-            msg_type: 'text',
-            content: { text },
-          });
-        }
-      }
-    } catch (err) {
-      this.logger.error('send feishu webhook error: ', err);
+    if (result?.uuid && result?.scanUrl) {
+      this.loginScanUrlMap.set(result.uuid, result.scanUrl);
     }
 
     return result;
@@ -389,5 +372,20 @@ export class TrpcService {
 
   getLoginScanUrl(id: string) {
     return this.loginScanUrlMap.get(id) || '';
+  }
+
+  async sendFeishuQrLink() {
+    const { originUrl } =
+      this.configService.get<ConfigurationType['feed']>('feed')!;
+    const { feishuWebhookUrl } =
+      this.configService.get<ConfigurationType['notify']>('notify')!;
+    if (feishuWebhookUrl && originUrl) {
+      const link = `${originUrl}/qr`;
+      const text = `请用微信扫码登录\n二维码链接：${link}\n点击链接后会生成最新二维码`;
+      await Axios.post(feishuWebhookUrl, {
+        msg_type: 'text',
+        content: { text },
+      });
+    }
   }
 }

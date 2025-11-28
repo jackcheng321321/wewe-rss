@@ -47,6 +47,20 @@ export class AppController {
     res.send(html);
   }
 
+  @Get('/qr')
+  async qrNew(@Response() res: Res) {
+    const data = await this.trpcService.createLoginUrl();
+    if (!data?.scanUrl || !data?.uuid) {
+      res.status(500).send('生成二维码失败');
+      return;
+    }
+    const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>扫码登录</title></head><body style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif"><div style="text-align:center"><img alt="qr" width="220" height="220" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(
+      data.scanUrl,
+    )}"><div style="margin-top:12px;color:#666"><span>微信扫码登录 </span><span id="countdown">(60s)</span></div><div style="margin-top:16px"><button onclick="location.href='/qr'" style="padding:6px 12px;border:1px solid #ccc;border-radius:6px;cursor:pointer">刷新二维码</button></div></div><script>var t=60;var el=document.getElementById('countdown');var timer=setInterval(function(){t--;if(t<=0){clearInterval(timer);el.innerText='(已过期)';}else{el.innerText='('+t+'s)';}},1000);</script></body></html>`;
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(html);
+  }
+
   @Get('/dash*')
   @Render('index.hbs')
   dashRender() {
