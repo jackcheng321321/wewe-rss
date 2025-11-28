@@ -388,4 +388,15 @@ export class TrpcService {
       });
     }
   }
+
+  async addAccountDirect(vid: number | string, token: string, username: string) {
+    const id = String(vid);
+    const account = await this.prismaService.account.upsert({
+      where: { id },
+      update: { token, name: username, status: statusMap.ENABLE },
+      create: { id, token, name: username, status: statusMap.ENABLE },
+    });
+    this.removeBlockedAccount(id);
+    return account;
+  }
 }
