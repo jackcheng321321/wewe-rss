@@ -386,10 +386,19 @@ export class TrpcService {
         msg_type: 'text',
         content: { text },
       });
+      this.logger.log('Feishu QR link sent');
+    } else {
+      this.logger.warn(
+        'Missing FEISHU_WEBHOOK_URL or SERVER_ORIGIN_URL, skip sending',
+      );
     }
   }
 
-  async addAccountDirect(vid: number | string, token: string, username: string) {
+  async addAccountDirect(
+    vid: number | string,
+    token: string,
+    username: string,
+  ) {
     const id = String(vid);
     const account = await this.prismaService.account.upsert({
       where: { id },
