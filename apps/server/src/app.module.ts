@@ -7,13 +7,10 @@ import configuration, { ConfigurationType } from './configuration';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
 import { FeedsModule } from './feeds/feeds.module';
-import { LoginQrModule } from './login/login-qr.module';
-
 @Module({
   imports: [
     TrpcModule,
     FeedsModule,
-    LoginQrModule,
     ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
